@@ -1,7 +1,10 @@
 import 'second_scenario.dart';
 
-List<int> getCharCodes(int num) {
+List<int> getCharCodes(double num) {
   String inputNum = num.toString();
+  if (num.toInt() / num == 1.0) {
+    inputNum = num.toInt().toString();
+  }
   List<int> outputList = inputNum.codeUnits;
   return outputList;
 }
@@ -26,7 +29,7 @@ String joinBytes(List<String> inputList) {
 }
 
 String forthItem(String inputString) {
-  int result = secondItem(inputString);
+  double result = double.parse(secondItem(inputString));
   List<int> charCodes = getCharCodes(result);
   List<String> bytes = [];
   String resultBar = '';

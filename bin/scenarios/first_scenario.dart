@@ -11,7 +11,7 @@ List<String> breakInBytes(String inputBar) {
   return outputList;
 }
 
-int potentiation(int inputNum, int exponentNum) {
+int raiseToPower(int inputNum, int exponentNum) {
   int result = 1;
   for (int i = 0; i < exponentNum; i++) {
     result = result * inputNum;
@@ -21,10 +21,10 @@ int potentiation(int inputNum, int exponentNum) {
 
 int binToDecimal(String binaryCode) {
   int decimalValue = 0;
-  for (int i = binaryCode.length - 1; i > 0; i--) {
+  for (int i = binaryCode.length - 1; i > -1; i--) {
     int exponent = (binaryCode.length - 1) - i;
     if (binaryCode[i] == '1') {
-      decimalValue += potentiation(2, exponent);
+      decimalValue += raiseToPower(2, exponent);
     }
   }
   return decimalValue;

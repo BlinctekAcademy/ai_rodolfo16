@@ -19,7 +19,8 @@ List<String> breakExpression(String decimalExpression) {
   String tempString = '';
 
   for (int i = 0; i < decimalExpression.length; i++) {
-    if (int.tryParse(decimalExpression[i]) != null) {
+    if (int.tryParse(decimalExpression[i]) != null ||
+        decimalExpression[i] == '.') {
       tempString += decimalExpression[i];
       if (i == decimalExpression.length - 1) {
         brokenExpression.add(tempString);
@@ -29,7 +30,9 @@ List<String> breakExpression(String decimalExpression) {
         brokenExpression.add(tempString);
       }
       tempString = decimalExpression[i];
-      brokenExpression.add(tempString);
+      if (tempString != ' ') {
+        brokenExpression.add(tempString);
+      }
       tempString = '';
     }
   }
@@ -57,9 +60,9 @@ List<String> infixToRPN(List<String> decimalExpression) {
   for (int i = 0; i < decimalExpression.length; i++) {
     actualChar = decimalExpression[i];
     charPriority =
-        int.tryParse(actualChar) == null ? priorityOrder[actualChar]! : -1;
+        double.tryParse(actualChar) == null ? priorityOrder[actualChar]! : -1;
 
-    if (int.tryParse(actualChar) != null) {
+    if (double.tryParse(actualChar) != null) {
       //actualChar is a num
       rpnExpression.add(actualChar);
     } else if (operatorStack.isEmpty) {
@@ -77,24 +80,12 @@ List<String> infixToRPN(List<String> decimalExpression) {
         //Cleans Stack
         while (charPriority <= lastOperatorPriority &&
             lastOperator != '(' &&
-            operatorStack.length > 1) {
-          if (charPriority <= lastOperatorPriority) {
-            rpnExpression.add(lastOperator);
-            operatorStack.removeAt(operatorStack.length - 1);
+            operatorStack.isNotEmpty) {
+          rpnExpression.add(lastOperator);
+          operatorStack.removeAt(operatorStack.length - 1);
+          if (operatorStack.isNotEmpty) {
             lastOperator = operatorStack[operatorStack.length - 1];
             lastOperatorPriority = priorityOrder[lastOperator]!;
-          }
-        }
-
-        //clean last stack operator (until this moment)
-        if (operatorStack.isNotEmpty) {
-          if (charPriority <= lastOperatorPriority) {
-            rpnExpression.add(operatorStack[operatorStack.length - 1]);
-            operatorStack.removeAt(operatorStack.length - 1);
-            if (operatorStack.isNotEmpty) {
-              lastOperator = operatorStack[operatorStack.length - 1];
-              lastOperatorPriority = priorityOrder[lastOperator]!;
-            }
           }
         }
 
@@ -106,7 +97,7 @@ List<String> infixToRPN(List<String> decimalExpression) {
         //Parentesis handler
         if (decimalExpression[i] == ')') {
           operatorStack.removeAt(operatorStack.length - 1);
-          rpnExpression.remove('(');
+          operatorStack.removeAt(operatorStack.length - 1);
           if (operatorStack.isNotEmpty) {
             lastOperator = operatorStack[operatorStack.length - 1];
             lastOperatorPriority = priorityOrder[lastOperator]!;
@@ -126,19 +117,19 @@ List<String> infixToRPN(List<String> decimalExpression) {
   return rpnExpression;
 }
 
-int rpnSolver(List<String> rpnInput) {
+double rpnSolver(List<String> rpnInput) {
   List<String> calculatingStack = [];
-  int result = 0;
-  int lastvalue;
-  int penultValue;
+  double result = 0;
+  double lastvalue;
+  double penultValue;
   int penultIndex;
 
   for (int i = 0; i < rpnInput.length; i++) {
-    if (int.tryParse(rpnInput[i]) != null) {
+    if (double.tryParse(rpnInput[i]) != null) {
       calculatingStack.add(rpnInput[i]);
     } else {
-      penultValue = int.parse(calculatingStack[calculatingStack.length - 2]);
-      lastvalue = int.parse(calculatingStack[calculatingStack.length - 1]);
+      penultValue = double.parse(calculatingStack[calculatingStack.length - 2]);
+      lastvalue = double.parse(calculatingStack[calculatingStack.length - 1]);
       penultIndex = calculatingStack.length - 2;
 
       if (rpnInput[i] == '+') {
@@ -154,24 +145,30 @@ int rpnSolver(List<String> rpnInput) {
         calculatingStack.removeRange(penultIndex, calculatingStack.length);
         calculatingStack.add(result.toString());
       } else if (rpnInput[i] == '/') {
-        result = (penultValue / lastvalue).round();
+        result = (penultValue / lastvalue);
         calculatingStack.removeRange(penultIndex, calculatingStack.length);
         calculatingStack.add(result.toString());
       }
     }
   }
-  return int.parse(calculatingStack[0]);
+  return double.parse(calculatingStack[0]);
 }
 
-int secondItem(inputByte) {
+String secondItem(inputByte) {
   String decimalExpression = '';
   List<String> brokenDecimalExpression = [];
   List<String> rpnExpression = [];
+  double result;
 
   decimalExpression = bytesToChar(inputByte);
   brokenDecimalExpression = breakExpression(decimalExpression);
   rpnExpression = infixToRPN(brokenDecimalExpression);
-  return rpnSolver(rpnExpression);
+  result = rpnSolver(rpnExpression);
+
+  if (result.toInt() / result == 1.0) {
+    return result.toInt().toString();
+  }
+  return result.toString();
 }
 
 String? checkFirstChar(String inputString, int actualItem) {
@@ -193,6 +190,8 @@ String? checkFirstChar(String inputString, int actualItem) {
     } else if (actualItem == 4) {
       return forthItem(inputString).toString();
     }
+  } else if (actualItem == 4) {
+    return inputString;
   }
   return bytesToChar(inputString);
 }
